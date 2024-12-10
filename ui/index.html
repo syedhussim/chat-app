@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            
+            html, body {
+                display: flex;
+                flex-direction: column;
+                flex:1;
+                margin:0px;
+                background-color: #edeef4;
+                height: 100%;
+                font-weight: 500;
+                color:#000;
+            }
+            h2 {
+                text-align: center;
+                margin-bottom: 50px;
+            }
+
+            button {  
+                background: linear-gradient(#9c6ce8, #955af5);
+                color:#ffffff;
+                border-radius: 30px; 
+                border:0px;
+                padding:15px 30px;
+                position: relative;
+                width: 100%;
+                box-shadow: 2px 5px 6px #9c6ce820;
+                cursor: pointer;
+                justify-content: center;
+                align-items: center;
+                font-size: inherit;
+            }
+
+            input[type=text] {
+                background-color: #fff;
+                border:0px;
+                border-radius: 30px;
+                padding:15px 30px;
+                width: 100%;
+                border:2px solid #dfe1e2;
+                resize: none;
+                font-size: inherit;
+                outline: none;
+            }
+            input[type=text]:focus{
+                border:2px solid #000;
+            }
+
+            textarea {
+                background-color: #fff;
+                border:0px;
+                padding:15px 0px;
+                width: 100%;
+                resize: none;
+                font-size: inherit;
+                outline: none;
+            }
+
+            .screen {
+                flex-direction:column; 
+                flex: 1; 
+                padding:30px; 
+                justify-content: center;
+            }
+            .screen > svg {
+                position: absolute;
+                top:0px;
+                left:0px;
+                right:0px;
+            }
+            .screen-visible {
+                display: flex;
+            }
+            .screen-hidden {
+                display: none;
+            }
+
+            .switch {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                background-color: #fff;
+                border:0px;
+                border-radius: 30px;
+                margin-bottom: 40px;
+                padding:7px;
+            }
+            .switch .option-container {
+                display: flex;
+                width: 100%;
+            }
+            .switch .option {
+                width: 50%;
+            }
+            .switch .option input[type=radio] {
+                display: none;
+            }
+            .switch .option input[type=radio] + label {
+                display: flex;
+                padding:10px 12px;
+                justify-content: center;
+                border-radius: 30px;
+                cursor: pointer;
+            }
+            .switch .option input[type=radio]:checked + label {
+                background-color: #9c6ce8;
+                color: #fff;
+            }
+            .switch input[type=text]{
+                background-color: #fff;
+                margin-top:7px
+            }
+
+            .chat-title {
+                position: fixed;
+                top: 0px;
+                left: 0px;
+                right: 0px;
+                height: 60px;
+                padding: 10px 20px;
+                background-color: #fff;
+                display: flex;
+                align-items: center;
+                font-weight: 600;
+            }
+
+            .messages {
+                display: flex;
+                flex-direction: column;
+                flex:1;
+                overflow: hidden auto;
+                position: fixed;
+                top:60px;
+                left:0px;
+                right:0px;
+                bottom: 140px;
+                padding:10px;
+            }
+            .messages .sender, .messages .receiver {
+                display: flex;
+                padding: 10px;
+                border-radius: 8px;
+                position: relative;
+            }
+            .messages .sender {
+                justify-content: flex-end;
+            }
+
+            .messages pre{
+                display: inline-flex;
+                flex-direction: column;
+                padding:8px 12px;
+                border-radius: 8px;
+                box-shadow: 2px 3px 4px #33333305;
+                font-family: inherit;
+                margin:0px;
+                white-space: pre-wrap;
+            }
+            .messages pre::after {
+                content: attr(data-time);
+                display: block;
+                text-align: right;
+                font-size: 12px;
+            }
+            .messages .sender pre{
+                background: linear-gradient(#9c6ce8, #955af5);
+                color:#fff;
+            }
+            .messages .sender pre::after {
+                color: #eee;
+            }
+            .messages .receiver pre{
+                background-color: #fff;
+            }
+            .messages .receiver pre::after{
+                color: #92999d;
+            }
+            .messages .emoji {
+                font-size:45px;
+            }
+            .messages .emoji > pre {
+                animation: animate .6s;
+                animation-fill-mode: forwards;
+            }
+
+            .chat-input-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                position: fixed;
+                bottom: 0px;
+                left:0px;
+                right:0px;
+                height: 80px;
+                padding:0px 20px;
+                background-color: #fff;
+            }
+
+            .emoji-container { 
+                position: fixed;
+                bottom: 80px;
+                left:20px;
+                right:20px;
+                display: flex;
+                list-style-type: none;
+                overflow: hidden;
+                margin:0px;
+                padding:0px;
+                margin-bottom: 10px;
+                background-color: #fff;
+                border-radius: 30px;
+            }
+            .emoji-container:hover {
+                overflow: auto;
+            }
+            .emoji-container li {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 28px;
+                padding:5px;
+                border-radius: 100%;
+                min-height: 50px;
+                min-width: 50px;
+                cursor: pointer;
+            }
+            .emoji-container li:hover {
+                background-color: #9c6ce8;
+            }
+            .chat-input { 
+                display: flex;
+            }
+
+            .chat-input button {
+                min-width: 50px;
+                min-height: 50px;
+                max-width: 50px;
+                max-height: 50px;
+                margin-left: 10px;
+                padding:0px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            @keyframes animate {
+                30% { transform: scale(1.2); }
+                40%, 60% { transform: rotate(-20deg) scale(1.2); }
+                50% { transform: rotate(20deg) scale(1.2); }
+                70% { transform: rotate(0deg) scale(1.2); }
+                100% { transform: scale(1); }
+            }
+
+        </style>
+    </head>
+    <body>
+        
+        <div class="screen screen-visible" id="screen1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#fff" fill-opacity="1" d="M0,0L120,48C240,96,480,192,720,192C960,192,1200,96,1320,48L1440,0L1440,0L1320,0C1200,0,960,0,720,0C480,0,240,0,120,0L0,0Z"></path></svg>
+
+            <h2>Welcome to Rust Chat!</h2>
+            
+            <div class="switch">
+                <div class="option-container">
+                    <div class="option">
+                        <input type="radio" id="server" name="con_type" value="server" onclick="conType(this)" checked />
+                        <label for="server">Server</label>
+                    </div>
+
+                    <div class="option">
+                        <input type="radio" id="client" name="con_type" value="client" onclick="conType(this)" />
+                        <label for="client">Client</label>
+                    </div>
+                </div>
+
+                <div style="display: none"; id="host_field">
+                    <input type="text" id="host" placeholder="Enter hostname:port" />
+                </div>
+            </div>
+
+            <div style="margin-bottom: 40px;">
+                <div>
+                    <input type="text" id="username" placeholder="Enter a username"/>
+                </div>
+            </div>
+
+            <div>
+                <button onclick="join()">Join</button>
+            </div>
+        </div>
+
+        <div class="screen screen-hidden" id="screen2">
+
+            <div id="connected_username" class="chat-title">Syed</div>
+            <div id="messages" class="messages"></div>
+
+            <ul class="emoji-container">
+                <li onclick="emoji(this)">&#128512</li>
+                <li onclick="emoji(this)">&#128513</li>
+                <li onclick="emoji(this)">&#128514</li>
+                <li onclick="emoji(this)">&#128515</li>
+                <li onclick="emoji(this)">&#128518</li>
+                <li onclick="emoji(this)">&#128520</li>
+                <li onclick="emoji(this)">&#128522</li>
+                <li onclick="emoji(this)">&#128523</li>
+                <li onclick="emoji(this)">&#128525</li>
+                <li onclick="emoji(this)">&#128526</li>
+                <li onclick="emoji(this)">&#9995</li>
+                <li onclick="emoji(this)">&#128075</li>
+                <li onclick="emoji(this)">&#128074</li>
+                <li onclick="emoji(this)">&#128076</li>
+                <li onclick="emoji(this)">&#128079</li>
+            </ul>
+
+            <div class="chat-input-container">
+                <div class="chat-input">
+                    <textarea id="message" rows="1" placeholder="Message"></textarea>
+                    <button onclick="send()">
+                        <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#fff"><path d="M140-190v-580l688.46 290L140-190Zm60-90 474-200-474-200v147.69L416.92-480 200-427.69V-280Zm0 0v-400 400Z"/></svg>
+                        </div>
+                    </button> 
+                </div>
+            </div> 
+        </div>
+
+        <script>
+
+            const invoke = window.__TAURI__.core.invoke;
+            const listen = window.__TAURI__.event.listen;
+
+            function conType(sender){
+                if(sender.value == 'server'){
+                    document.getElementById("host_field").style.display = 'none';
+                }else{
+                    document.getElementById("host_field").style.display = 'flex';
+                }
+            }
+
+            async function join(){
+
+                let conType = document.querySelector("input[type=radio]:checked").value;
+                let username = document.getElementById("username").value;
+
+                document.querySelector("#screen1").classList.replace("screen-visible", "screen-hidden");
+                document.querySelector("#screen2").classList.replace("screen-hidden", "screen-visible");
+
+                if(conType == "server"){
+                    await invoke("server_listen", { 
+                        username : username
+                    });
+
+                }else{
+                    await invoke("client_connect", { 
+                        host : document.getElementById("host").value,
+                        username : username
+                    });
+                }
+            }
+
+            async function send(){
+
+                let message = document.getElementById("message").value;
+
+                let messages = document.getElementById("messages");
+
+                messages.appendChild(
+                    createMessage(message, "sender")
+                );
+
+                messages.scrollTop = messages.scrollHeight;
+
+                await invoke("send", { message : message, is_emoji : false });
+
+                document.getElementById("message").value = "";
+            }
+
+            async function emoji(sender){ 
+
+                let messages = document.getElementById("messages");
+
+                messages.appendChild(
+                    createMessage(sender.innerHTML, "sender emoji")
+                );
+
+                messages.scrollTop = messages.scrollHeight;
+
+                await invoke("send", { message : sender.innerHTML, is_emoji : true });
+            } 
+
+            async function init(){
+
+                await listen("message", data => {
+
+                    let div = document.createElement("div"); 
+                    let message = JSON.parse(data.payload.trim());
+
+                    if(message.first_connect){
+                        document.getElementById("connected_username").innerHTML = message.username;
+                    }
+
+                    let messages = document.getElementById("messages");
+
+                    messages.appendChild(
+                        createMessage(message.message, "receiver " +  (message.is_emoji ? "emoji" : ""))
+                    );
+
+                    messages.scrollTop = messages.scrollHeight;
+                });
+            }
+
+            function createMessage(message, className){
+
+                let container = document.createElement("div");
+
+                className.split(" ").map(cls => {
+                    if(cls){
+                        container.classList.add(cls)
+                    }
+                });
+
+                let dateParts = new Date().toLocaleTimeString().split(":");
+
+                let pre = document.createElement("pre");
+                pre.innerHTML = message;
+                pre.dataset.time = `${dateParts[0]}:${dateParts[1]}`;
+
+                container.appendChild(pre);
+                return container;
+            }
+ 
+            init();
+
+        </script>
+    </body>
+</html>
